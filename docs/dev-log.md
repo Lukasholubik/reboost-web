@@ -7,6 +7,40 @@
 
 ## Záznamy
 
+### 2026-06-09 – PageSpeed průběh + pending úkoly
+
+**Stav k 9.6.2026 (evening):**
+
+| Test | Skóre mobil | FCP | LCP | TBT | CLS |
+|------|-------------|-----|-----|-----|-----|
+| Výchozí stav | 58 | ~4.1 s | ~7+ s | ~40 ms | 0.156 |
+| Po self-hosted fontech | 63 | 4.1 s | 4.6 s | ~40 ms | 0.058 |
+| Po Imagify + preloadech | ~68 | **1.8 s** | ~4.5 s | 860 ms | 0.059 |
+
+**Co způsobilo skok FCP 4.1 → 1.8 s:** odstranění Google Fonts preconnect + font preload + blokování Elementor GF requestů.
+
+**Nový bottleneck po zlepšení:** TBT 860 ms (JavaScript execution). Hlavní viníci:
+- jQuery: 818 ms (nelze odstranit)
+- Unattributable: 611 ms
+- Google Tag Manager: 373 ms → **opraveno lazy loadem**
+- jet-popup-frontend.js: 87 ms
+- banner-1-optin.css: 75 ms
+- swiper.min.js: 105 ms (22.2 KiB unused)
+
+**Pending – co zbývá řešit (příští session):**
+1. Nainstalovat **WP Fastest Cache** (free) nebo **WP Rocket** ($59/rok) – page cache + Critical CSS → odhadovaný gain +5–15 bodů
+2. Ověřit zda Imagify převedl `lady-hero-1.png` na WebP → pokud ano, aktualizovat preload URL v functions.php na `.webp`
+3. Podmíněně dequeue `jet-popup-frontend.js` na stránkách bez popupů (87 ms TBT)
+4. Identifikovat `banner-1-optin.css?v=19` a dequeue kde není potřeba (75 ms)
+5. Poppins (post-157/222/1091) + Inter (post-248) – změnit na Archivo Narrow v Elementoru nebo self-hostovat
+
+**Doporučení pro caching plugin:**
+- Server: **Apache** (ne LiteSpeed) → LiteSpeed Cache nevhodný
+- Free: **WP Fastest Cache** – zapnout jen Cache + Minify HTML/CSS + Combine CSS, JS optimalizace VYPNOUT (máme v functions.php)
+- Paid: **WP Rocket** – nejlepší volba, přidá Critical CSS a Remove Unused CSS (~+10–15 bodů navíc)
+
+---
+
 ### 2026-06-09 – GTM lazy load (SmartEmailing Connect plugin)
 
 **Soubory:** `wp-content/plugins/smartemailing-connect/includes/GTM/GTM.php`
