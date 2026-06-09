@@ -1,0 +1,99 @@
+# ==========================================
+# REBOOST – WordPress Web Repository
+# Co NECOMMITOVAT
+# ==========================================
+
+# === CITLIVÁ DATA / KONFIGURACE ===
+wp-config.php
+*.env
+.env*
+*.key
+*.pem
+.claude/
+
+# === WORDPRESS CORE ===
+# (aktualizováno přes WP Admin / WP-CLI, není náš kód)
+/wp-admin/
+/wp-includes/
+/index.php
+/license.txt
+/readme.html
+/wp-activate.php
+/wp-blog-header.php
+/wp-comments-post.php
+/wp-cron.php
+/wp-links-opml.php
+/wp-load.php
+/wp-login.php
+/wp-mail.php
+/wp-settings.php
+/wp-signup.php
+/wp-trackback.php
+/xmlrpc.php
+
+# wp-config-sample.php TRACKUJEME – slouží jako šablona pro produkci
+
+# === UPLOADY & MÉDIA ===
+/wp-content/uploads/
+/wp-content/blogs.dir/
+
+# === CACHE & GENEROVANÉ SOUBORY ===
+/wp-content/cache/
+/wp-content/advanced-cache.php
+/wp-content/object-cache.php
+/wp-content/db.php
+
+# === LOGY & DEBUG ===
+/wp-content/debug.log
+/wp-content/wflogs/
+*.log
+
+# === WP PŘEKLADY (spravováno přes WP Admin) ===
+/wp-content/languages/
+/wp-content/index.php
+
+# === ZÁLOHY A DOČASNÉ SOUBORY ===
+/wp-content/upgrade/
+/wp-content/upgrade-temp-backup/
+/wp-content/updraft/
+/wp-content/uploads-old/
+/wp-content/plugins-old/
+/wp-content/themes-old/
+/wp-content/index.php-old
+
+# === PLUGINY TŘETÍCH STRAN ===
+# Instalují se přes WP Admin – nejsou náš kód
+# Vlastní pluginy mají VLASTNÍ repozitáře:
+#   → github.com/Lukasholubik/emailing-calculator
+#   → github.com/Lukasholubik/smartemailing-connect
+/wp-content/plugins/
+
+# === TÉMATA TŘETÍCH STRAN ===
+# Pouze hello-elementor-child je náš kód (trackujeme)
+/wp-content/themes/hello-elementor/
+/wp-content/themes/index.php
+
+# === OS / IDE ===
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === NODE / BUILD ===
+node_modules/
+.npm/
+dist/
+build/
+
+# ==========================================
+# CO TRACKUJEME:
+#   ✅ .htaccess (vlastní URL pravidla)
+#   ✅ wp-config-sample.php (šablona)
+#   ✅ wp-content/themes/hello-elementor-child/
+#   ✅ wp-content/mu-plugins/ (pokud existují)
+#   ✅ docs/ (dokumentace celého webu)
+# ==========================================

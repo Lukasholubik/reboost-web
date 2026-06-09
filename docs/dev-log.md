@@ -1,0 +1,97 @@
+# Reboost Web – Vývojový deník
+
+> **Tento soubor je první co číst.** Každá změna přibyde sem – co bylo uděláno, proč a kde v kódu.
+> Nové záznamy přidávej **na začátek** (nejnovější nahoře).
+
+---
+
+## Repozitáře projektu
+
+| Repozitář | URL | Co trackuje |
+|-----------|-----|-------------|
+| **Web (tento repo)** | `https://github.com/Lukasholubik/reboost-website` | Child theme, .htaccess, docs, site config |
+| Emailing Calculator | `https://github.com/Lukasholubik/emailing-calculator` | ROI kalkulačka plugin |
+| SmartEmailing Connect | `https://github.com/Lukasholubik/smartemailing-connect` | SE napojení plugin |
+
+---
+
+## Workflow spolupráce
+
+### Git & větve
+
+- **`main`** = stabilní kód – vždy funkční, vždy prošel bezpečnostním auditem. Odpovídá live webu.
+- **`dev`** = vývojová větev – sem jdou rozpracované změny před mergem do main.
+- **Feature větve** pro větší funkce: `feature/nazev`, `fix/nazev`, `refactor/nazev`
+  - Merge do `dev` po otestování, merge do `main` před nasazením na live.
+  - Drobné opravy textu/CSS → přímý commit do `dev`, pak merge do `main`.
+
+### Push příkaz
+
+Napíše-li uživatel **"push"** (nebo "pošli", "pushni"), provést bez ptaní:
+1. Bezpečnostní audit změněného kódu (viz checklist níže)
+2. Opravit všechny nalezené problémy
+3. `git add` + `git commit` + `git push`
+
+### Nasazení na live
+
+Napíše-li uživatel **"nasaď na live"**, **"commitni do live"** nebo podobně:
+1. Merge `dev` → `main`
+2. Push `main` na GitHub
+3. Synchronizace s live serverem (postup viz sekce Deployment)
+
+### Bezpečnostní audit před každým pushem
+
+Před každým `git push` zkontrolovat změněné soubory:
+- **PHP:** SQL injection (bez `$wpdb->prepare()`), XSS (bez `esc_*`), auth/nonce na AJAX/REST
+- **Citlivá data:** žádné API klíče, hesla, secrets v plaintextu (wp-config.php je v gitignore)
+- **CSS/JS:** žádné inline eventy nebo XSS vektory
+- Pokud najdu problém → opravím před pushem, zapíši do dev-logu
+
+### CSS
+
+**Tailwind CSS** – veškeré nové styly v Tailwindu. Vlastní třídy jen pokud Tailwind nestačí. Inline `style=""` jen pro dynamické hodnoty.
+
+---
+
+## Struktura webu
+
+| Soubor/složka | Popis |
+|---------------|-------|
+| `wp-content/themes/hello-elementor-child/` | Náš custom child theme (Hello Elementor Child) |
+| `.htaccess` | WordPress URL pravidla + vlastní rewrites |
+| `wp-config-sample.php` | Šablona konfigurace (bez hesel) |
+| `docs/` | Tato dokumentace |
+
+### Pluginy (vlastní – vlastní repos)
+
+| Plugin | Složka | GitHub |
+|--------|--------|--------|
+| Emailing Calculator | `wp-content/plugins/emailing-calculator/` | [github.com/Lukasholubik/emailing-calculator](https://github.com/Lukasholubik/emailing-calculator) |
+| SmartEmailing Connect | `wp-content/plugins/smartemailing-connect/` | [github.com/Lukasholubik/smartemailing-connect](https://github.com/Lukasholubik/smartemailing-connect) |
+
+### Pluginy (třetí strany – netrackujeme)
+
+Instalovány přes WP Admin, verze viz `docs/overview.md`.
+
+---
+
+## Šablona záznamu
+
+```
+### RRRR-MM-DD – Stručný popis změny
+
+**Soubory:** `wp-content/themes/hello-elementor-child/functions.php`
+**Co bylo uděláno:** ...
+**Proč:** ...
+**Pozor na:** ... (volitelné)
+```
+
+---
+
+## Záznamy
+
+### 2026-06-09 – Inicializace git repozitáře pro celý web
+
+**Soubory:** `.gitignore`, `docs/dev-log.md`, `docs/overview.md`
+**Co bylo uděláno:** Vytvořen git repozitář v kořeni WordPress instalace (`/public`). Nastaveny větve `main` (live) a `dev` (vývoj). Vytvořena dokumentace. Pluginy emailing-calculator a smartemailing-connect zůstávají ve vlastních repozitářích – nejsou součástí web repo.
+**Proč:** Umožnit verzování a přehled změn celého webu – nejen pluginů. Child theme a site config dosud nebyly verzovány.
