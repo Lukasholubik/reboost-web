@@ -5,6 +5,27 @@
 
 ---
 
+## Záznamy
+
+### 2026-06-09 – Performance: preload fontů + LCP hero obrázku + blokování GF requestů
+
+**Soubory:** `wp-content/themes/hello-elementor-child/functions.php`
+
+**Co bylo uděláno:**
+1. Odstraněn `preconnect` na `fonts.googleapis.com` + `fonts.gstatic.com` – fonty jsou self-hosted, zbytečné TCP spojení
+2. Přidán `<link rel="preload">` pro ArchivoNarrow TTF – browser stáhne font ihned z `<head>` místo až po parsování CSS
+3. Přidán `<link rel="preload">` pro LCP obrázek `uploads/2026/04/lady-hero-1.png` – pouze na homepage (`is_front_page()`). Obrázek je CSS `::before` background, browser ho normálně objeví až po parsování CSS → preload zkrátí LCP
+4. Přidán `add_filter('elementor/frontend/print_google_fonts', '__return_false')` – zabrání Elementoru generovat `<link>` na fonts.googleapis.com pro Poppins/Inter
+
+**Proč:**
+- LCP byl 4.6 s (červená). CSS background obrázky jsou "late-discovered" resources – browser neví o nich dokud neparsuje CSS. Preload to řeší.
+- Font preload zkrátí FCP (první obsah na stránce).
+- Elementor filter jako pojistka: i když jsou Poppins/Inter změněny na lokální, Elementor mohl stále posílat GF request.
+
+**LCP element:** `body.home > div.elementor > div.elementor-element > ::before` → `uploads/2026/04/lady-hero-1.png` (ověřeno v PageSpeed Insights – zvýrazněno žlutě)
+
+---
+
 ## Repozitáře projektu
 
 | Repozitář | URL | Co trackuje |

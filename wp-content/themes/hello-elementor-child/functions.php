@@ -40,13 +40,26 @@ add_action('init', function () {
     remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
 });
 
-// --- 2. Preconnect + DNS prefetch pro externí zdroje ---
+// --- 2. Preconnect + DNS prefetch + preloads ---
+// fonts.googleapis.com odstraněno – všechny fonty jsou self-hosted
 add_action('wp_head', function () {
-    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    $base = esc_url(content_url('uploads/2026/06'));
+    // Preload hlavního fontu – prohlížeč ho stáhne ihned, nezávisle na CSS
+    echo '<link rel="preload" href="' . $base . '/ArchivoNarrow-VariableFont_wght.ttf" as="font" type="font/truetype" crossorigin>' . "\n";
+    // Preload LCP obrázku (hero background na homepage) – CSS ::before obrázky jsou vidět až po parsování CSS,
+    // preload zajistí download ihned z <head> a výrazně zkrátí LCP
+    if ( is_front_page() ) {
+        $hero = esc_url( content_url( 'uploads/2026/04/lady-hero-1.png' ) );
+        echo '<link rel="preload" href="' . $hero . '" as="image">' . "\n";
+    }
     echo '<link rel="dns-prefetch" href="https://cdn.trustindex.io">' . "\n";
     echo '<link rel="dns-prefetch" href="https://lh3.googleusercontent.com">' . "\n";
 }, 2);
+
+// --- 2b. Zakáž Elementoru posílat Google Fonts requesty ---
+// Elementor může automaticky generovat <link> na fonts.googleapis.com pro Poppins/Inter.
+// Toto ho zastaví – naše lokální @font-face pravidla zajistí správné fonty.
+add_filter('elementor/frontend/print_google_fonts', '__return_false');
 
 // --- 3. Defer non-critical JavaScript (ne jQuery, ne Elementor core) ---
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
