@@ -25,6 +25,81 @@ add_action( 'wp_enqueue_scripts', 'child_theme_configurator_css', 10 );
 
 // END ENQUEUE PARENT ACTION
 
+// ==========================================
+// VÝKON – Reboost performance optimalizace
+// ==========================================
+
+// --- 1. Odstraň emoji skripty (zbytečné ~20 KB) ---
+add_action('init', function () {
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+});
+
+// --- 2. Preconnect + DNS prefetch pro externí zdroje ---
+add_action('wp_head', function () {
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    echo '<link rel="dns-prefetch" href="https://cdn.trustindex.io">' . "\n";
+    echo '<link rel="dns-prefetch" href="https://lh3.googleusercontent.com">' . "\n";
+}, 2);
+
+// --- 3. Defer non-critical JavaScript (ne jQuery, ne Elementor core) ---
+add_filter('script_loader_tag', function ($tag, $handle, $src) {
+    if (is_admin()) return $tag;
+    // Tyto skripty NESMÍ být defernuty – stránka by se rozbila
+    $no_defer = [
+        'jquery', 'jquery-core', 'jquery-migrate',
+        'elementor-frontend', 'elementor-pro-frontend',
+        'wp-embed',
+    ];
+    if (in_array($handle, $no_defer, true)) return $tag;
+    // Přidej defer pouze pokud ho tag ještě nemá
+    if (strpos($tag, ' defer') !== false || strpos($tag, ' async') !== false) return $tag;
+    return str_replace('<script ', '<script defer ', $tag);
+}, 10, 3);
+
+// --- 4. Odstraň query strings ze statických souborů (lepší cache) ---
+add_filter('style_loader_src', 'reboost_remove_ver_query', 9999);
+add_filter('script_loader_src', 'reboost_remove_ver_query', 9999);
+function reboost_remove_ver_query($src) {
+    if (is_admin()) return $src;
+    // Ponech ver pro Elementor a pluginy (mohou záviset na verzi)
+    $keep_ver = ['elementor', 'wp-block'];
+    foreach ($keep_ver as $k) {
+        if (strpos($src, $k) !== false) return $src;
+    }
+    return $src ? esc_url(remove_query_arg('ver', $src)) : $src;
+}
+
+// --- 5. Oprav lazy loading na velkých obrázcích nad foldem ---
+// Silver badge (wp-image-570, 800x800) má lazy loading ale je nad foldem na mobilu
+add_filter('wp_content_img_tag', function ($filtered_image, $context, $attachment_id) {
+    // wp-image-570 = Silver partner badge (LCP kandidát)
+    if ($attachment_id === 570) {
+        $filtered_image = str_replace(' loading="lazy"', '', $filtered_image);
+        $filtered_image = str_replace(' decoding="async"', ' decoding="sync" fetchpriority="high"', $filtered_image);
+    }
+    return $filtered_image;
+}, 10, 3);
+
+// --- 6. Odstraň zbytečné WP hlavičky ---
+add_action('init', function () {
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    remove_action('wp_head', 'wlwmanifest_link');
+    remove_action('wp_head', 'rsd_link');
+    remove_action('wp_head', 'wp_generator');
+    remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
+});
+
+// ==========================================
+// KONEC výkonnostních optimalizací
+// ==========================================
+
 add_action('template_redirect', function () {
     if (is_admin() || is_feed() || is_preview()) {
         return;

@@ -90,6 +90,24 @@ Instalovány přes WP Admin, verze viz `docs/overview.md`.
 
 ## Záznamy
 
+### 2026-06-09 – Performance optimalizace – mobil (PageSpeed 64 → cíl 85+)
+
+**Soubory:** `.htaccess`, `wp-content/themes/hello-elementor-child/functions.php`
+**Co bylo uděláno:**
+1. **`.htaccess`** – přidána gzip/deflate komprese (úspora 758 KB na mobilu), browser caching (obrázky 1 rok, CSS/JS 1 měsíc), Keep-Alive, bezpečnostní hlavičky (X-Frame-Options, X-Content-Type-Options)
+2. **`functions.php`** – sada výkonnostních optimalizací:
+   - Odstraněny emoji skripty (~20 KB JS + CSS zbytečně)
+   - Preconnect + DNS prefetch pro Google Fonts, Trustindex CDN
+   - Defer non-critical JS (22 skriptů) – vynechány jQuery, Elementor core
+   - Odstraněny query strings ze statických souborů (lepší browser cache)
+   - Silver partner badge (wp-image-570, 800×800px) – odstraněn `loading="lazy"`, přidán `fetchpriority="high"` (byl LCP kandidát na mobilu)
+   - Odstraněny zbytečné WP hlavičky (shortlink, generator, wlwmanifest)
+
+**Proč:** PageSpeed Insights – mobil skóre 64, LCP 6.7s. Největší problémy: chybějící gzip (758KB úspora), render-blocking JS, lazy loading na LCP obrázku.
+**Pozor na:** Defer JS – pokud se nějaký plugin rozbije (JS chyby v konzoli), přidat handle do pole `$no_defer` ve functions.php.
+
+---
+
 ### 2026-06-09 – Inicializace git repozitáře pro celý web
 
 **Soubory:** `.gitignore`, `docs/dev-log.md`, `docs/overview.md`

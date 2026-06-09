@@ -1,4 +1,69 @@
 
+# BEGIN Performance – Reboost
+# ==========================================
+# GZIP / DEFLATE komprese
+# ==========================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE text/javascript application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml image/x-icon
+    AddOutputFilterByType DEFLATE font/woff font/woff2 font/ttf font/otf
+    AddOutputFilterByType DEFLATE application/font-woff application/font-woff2
+</IfModule>
+
+# ==========================================
+# Browser Caching – Expires hlavičky
+# ==========================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    # Obrázky – 1 rok
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    # Fonty – 1 rok
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    # CSS a JS – 1 měsíc
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    # HTML – bez cache (dynamický obsah)
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# ==========================================
+# Cache-Control + Keep-Alive hlavičky
+# ==========================================
+<IfModule mod_headers.c>
+    <FilesMatch "\.(ico|jpg|jpeg|png|gif|webp|svg|woff|woff2|ttf|otf)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    # Keep-Alive pro méně TCP handshake
+    Header set Connection keep-alive
+    # Ochrana před MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# ==========================================
+# Bezpečnostní hlavičky
+# ==========================================
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+# END Performance – Reboost
+
 # BEGIN WordPress
 # The directives (lines) between "BEGIN WordPress" and "END WordPress" are
 # dynamically generated, and should only be modified via WordPress filters.
