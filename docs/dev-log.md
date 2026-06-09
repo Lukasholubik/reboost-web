@@ -7,6 +7,18 @@
 
 ## Záznamy
 
+### 2026-06-09 – GTM lazy load (SmartEmailing Connect plugin)
+
+**Soubory:** `wp-content/plugins/smartemailing-connect/includes/GTM/GTM.php`
+
+**Co bylo uděláno:**
+- `inject_head()` upraven na lazy load: GTM se načítá až po první interakci uživatele (scroll/click/touch/keydown) nebo po 3 sekundách
+- `window.dataLayer` inicializován okamžitě – události pushnuté před načtením GTM se neztrácejí, GA4 data jsou zachována
+
+**Proč:** GTM způsoboval 373 ms blokování hlavního vlákna (TBT) při startu stránky. Lazy load přesune tento čas mimo critical render path.
+
+---
+
 ### 2026-06-09 – Performance: preload fontů + LCP hero obrázku + blokování GF requestů
 
 **Soubory:** `wp-content/themes/hello-elementor-child/functions.php`
