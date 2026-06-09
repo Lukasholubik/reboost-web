@@ -90,6 +90,34 @@ Instalovány přes WP Admin, verze viz `docs/overview.md`.
 
 ## Záznamy
 
+### 2026-06-09 – Self-hosting fontů: ArchivoNarrow + Instrument Sans
+
+**Větev:** `feature/self-hosted-fonts`
+**Soubory:** `wp-content/themes/hello-elementor-child/functions.php`
+
+**Co bylo uděláno:**
+1. Nahrány variable TTF fonty přes **Elementor → Vlastní Elementy → Fonts**:
+   - `ArchivoNarrow`: `ArchivoNarrow-VariableFont_wght.ttf` + `ArchivoNarrow-Italic-VariableFont_wght.ttf`
+   - `Instrument Sans`: `InstrumentSans-VariableFont_wdthwght.ttf` + `InstrumentSans-Italic-VariableFont_wdthwght.ttf` (staženy z Google Fonts GitHub)
+2. Přidána sekce 7 do `functions.php` – inline `<style id="reboost-local-fonts">` s @font-face pravidly pro:
+   - `ArchivoNarrow` (custom font název) + `Archivo Narrow` (Google Fonts název s mezerou) → oba vedou na stejný lokální soubor
+   - `Instrument Sans` → lokální TTF
+   - Každý font má 3 varianty: normal / italic / oblique, font-weight: 100–900
+
+**Proč:**
+- Elementor Custom Fonts generuje @font-face bez `font-weight` range → browser defaultuje na 400, h1–h6 (weight 700 + oblique) se renderovaly špatně
+- Globální typografické presety Elementoru používají `"Archivo Narrow"` (s mezerou), náš custom font je `"ArchivoNarrow"` (bez mezery) → přidán @font-face pro oba názvy
+- Instrument Sans se načítal z Google Fonts (render-blocking) → nahrazen lokálním souborem
+
+**Stav Google Fonts:** Poppins a Inter zůstávají na Google Fonts (záměrné rozhodnutí, řeší se v budoucnu).
+
+**Bezpečnostní audit:** Prošel – žádné SQL injection, XSS, nebo leaky citlivých dat.
+
+**Pozor na:** Cesta k fontům je hardcoded na `wp-content/uploads/2026/06/` – při migraci nutno zkontrolovat.
+
+---
+
+
 ### 2026-06-09 – Performance optimalizace – mobil (PageSpeed 64 → cíl 85+)
 
 **Soubory:** `.htaccess`, `wp-content/themes/hello-elementor-child/functions.php`

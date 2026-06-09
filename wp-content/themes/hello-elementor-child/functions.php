@@ -82,7 +82,11 @@ add_filter('wp_content_img_tag', function ($filtered_image, $context, $attachmen
     // wp-image-570 = Silver partner badge (LCP kandidát)
     if ($attachment_id === 570) {
         $filtered_image = str_replace(' loading="lazy"', '', $filtered_image);
-        $filtered_image = str_replace(' decoding="async"', ' decoding="sync" fetchpriority="high"', $filtered_image);
+        $filtered_image = str_replace(' decoding="async"', ' decoding="sync"', $filtered_image);
+        // Přidej fetchpriority jen pokud tam ještě není (Elementor ho může přidat sám)
+        if (strpos($filtered_image, 'fetchpriority') === false) {
+            $filtered_image = str_replace('<img ', '<img fetchpriority="high" ', $filtered_image);
+        }
     }
     return $filtered_image;
 }, 10, 3);
@@ -95,6 +99,28 @@ add_action('init', function () {
     remove_action('wp_head', 'wp_generator');
     remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
 });
+
+// --- 7. Lokální fonty @font-face (ArchivoNarrow, Instrument Sans) ---
+// Elementor Custom Fonts negeneruje font-weight range pro variable fonty.
+// Tato pravidla zajistí správné matchování všech vah + italic/oblique variant.
+add_action('wp_head', function () {
+    if (is_admin()) return;
+    $base = esc_url(content_url('uploads/2026/06'));
+    echo "<style id='reboost-local-fonts'>\n";
+    // "ArchivoNarrow" = custom font název v Elementoru
+    echo "@font-face{font-family:'ArchivoNarrow';font-style:normal;font-weight:100 900;src:url('{$base}/ArchivoNarrow-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'ArchivoNarrow';font-style:italic;font-weight:100 900;src:url('{$base}/ArchivoNarrow-Italic-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'ArchivoNarrow';font-style:oblique;font-weight:100 900;src:url('{$base}/ArchivoNarrow-Italic-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    // "Archivo Narrow" = Google Fonts název (s mezerou) – globální Elementor presety ho používají
+    echo "@font-face{font-family:'Archivo Narrow';font-style:normal;font-weight:100 900;src:url('{$base}/ArchivoNarrow-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'Archivo Narrow';font-style:italic;font-weight:100 900;src:url('{$base}/ArchivoNarrow-Italic-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'Archivo Narrow';font-style:oblique;font-weight:100 900;src:url('{$base}/ArchivoNarrow-Italic-VariableFont_wght.ttf') format('truetype');font-display:swap;}\n";
+    // "Instrument Sans" – lokální variable font (nahrazen Google Fonts)
+    echo "@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:100 900;src:url('{$base}/InstrumentSans-VariableFont_wdthwght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'Instrument Sans';font-style:italic;font-weight:100 900;src:url('{$base}/InstrumentSans-Italic-VariableFont_wdthwght.ttf') format('truetype');font-display:swap;}\n";
+    echo "@font-face{font-family:'Instrument Sans';font-style:oblique;font-weight:100 900;src:url('{$base}/InstrumentSans-Italic-VariableFont_wdthwght.ttf') format('truetype');font-display:swap;}\n";
+    echo "</style>\n";
+}, 20);
 
 // ==========================================
 // KONEC výkonnostních optimalizací
