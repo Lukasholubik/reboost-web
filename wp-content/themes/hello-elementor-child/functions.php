@@ -302,4 +302,32 @@ if ( ! function_exists( 'reboost_read_time_shortcode' ) ) {
 	}
 
 	add_shortcode( 'reboost_read_time', 'reboost_read_time_shortcode' );
+
+// ==========================================
+// PŘÍSTUPNOST – oprava ARIA role="list" u Elementor Loop Carouselu
+// ==========================================
+// Elementor dává kontejneru role="list", ale Swiper vkládá mezi něj
+// a sloty (.swiper-slide) ještě .swiper-wrapper bez role, což porušuje
+// požadavek "role=list musí mít přímé potomky role=listitem".
+add_action( 'wp_footer', function () {
+	?>
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		function fixAriaList(container) {
+			var wrapper = container.querySelector(':scope > .swiper-wrapper');
+			if (!wrapper) return;
+			wrapper.setAttribute('role', 'presentation');
+			wrapper.querySelectorAll(':scope > .swiper-slide').forEach(function (slide) {
+				slide.setAttribute('role', 'listitem');
+			});
+		}
+		document.querySelectorAll('.elementor-loop-container.elementor-grid[role="list"]').forEach(function (container) {
+			fixAriaList(container);
+			new MutationObserver(function () { fixAriaList(container); })
+				.observe(container, { childList: true, subtree: true });
+		});
+	});
+	</script>
+	<?php
+}, 100 );
 }

@@ -7,6 +7,21 @@
 
 ## Záznamy
 
+### 2026-06-10 – Oprava ARIA accessibility chyby u Elementor Loop Carouselu
+
+PageSpeed/Lighthouse hlásil chybu u prvků s `role="list"` (Elementor loop carousel,
+např. "Případovka" karusel) – chybějící povinné `role="listitem"` u potomků kvůli
+Swiperem vkládanému `.swiper-wrapper` bez role.
+
+**Řešení:** přidán JS snippet ve `wp_footer` (functions.php), který u
+`.elementor-loop-container.elementor-grid[role="list"]` nastaví `.swiper-wrapper`
+na `role="presentation"` a každý `.swiper-slide` na `role="listitem"`. Funguje
+i na slidy přidané dodatečně (Swiper loop duplikáty) díky `MutationObserver`.
+
+**Kde:** `wp-content/themes/hello-elementor-child/functions.php` (sekce "PŘÍSTUPNOST").
+
+---
+
 ### 2026-06-09 – PageSpeed průběh + pending úkoly
 
 **Stav k 9.6.2026 (evening):**
